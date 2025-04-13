@@ -77,8 +77,8 @@ export default function App() {
         shouldDuckAndroid: true,
         playThroughEarpieceAndroid: false,
         allowsRecordingIOS: false,
-        interruptionModeIOS: 1, // Audio.INTERRUPTION_MODE_IOS_DUCK_OTHERS
-        interruptionModeAndroid: 1, // Audio.INTERRUPTION_MODE_ANDROID_DUCK_OTHERS
+        interruptionModeIOS: 1,
+        interruptionModeAndroid: 1,
       });
 
       const { sound: newSound } = await Audio.Sound.createAsync(
@@ -112,6 +112,18 @@ export default function App() {
   const playAgentSound = async (isMale: boolean) => {
     try {
       console.log('Playing sound for agent:', isMale ? 'John' : 'Alice');
+      
+      // Configure audio to use main speaker
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+        allowsRecordingIOS: false,
+        interruptionModeIOS: 1,
+        interruptionModeAndroid: 1,
+      });
+
       const soundFile = isMale 
         ? require('../assets/audio/michael.wav')
         : require('../assets/audio/alice.wav');
