@@ -64,19 +64,23 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onAnimationComplete }) => {
       ]}
     >
       <View style={styles.content}>
-        <Text style={styles.text}>Open</Text>
-        {showNI && (
-          <Animated.View 
-            style={[
-              styles.niContainer,
-              {
-                transform: [{ translateX: slideAnim }],
-              }
-            ]}
-          >
-            <Text style={styles.niText}>NI</Text>
-          </Animated.View>
-        )}
+        <View style={styles.openContainer}>
+          <Text style={styles.text}>Open</Text>
+        </View>
+        <View style={styles.niWrapper}>
+          {showNI && (
+            <Animated.View 
+              style={[
+                styles.niContainer,
+                {
+                  transform: [{ translateX: slideAnim }],
+                }
+              ]}
+            >
+              <Text style={styles.niText}>NI</Text>
+            </Animated.View>
+          )}
+        </View>
       </View>
     </Animated.View>
   );
@@ -92,13 +96,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   content: {
-    flexDirection: 'row',
     alignItems: 'center',
+  },
+  openContainer: {
+    height: 140, // Same height as NI container to maintain vertical alignment
+    justifyContent: 'center',
   },
   text: {
     fontSize: 100,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  niWrapper: {
+    height: 140, // Same height as Open container
+    width: 140, // Same width as NI container
+    justifyContent: 'center',
   },
   niContainer: {
     width: 140,
@@ -107,7 +119,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 8,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
