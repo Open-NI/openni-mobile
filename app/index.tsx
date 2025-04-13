@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { Audio } from 'expo-av';
 import Chat from '../components/Chat';
 import Microphone from '../components/Microphone';
 import Agent from '../components/Agent';
@@ -18,6 +19,29 @@ export default function App() {
   const [showIntro, setShowIntro] = useState(true);
   const [showAgentSelection, setShowAgentSelection] = useState(false);
   const [isMaleAgent, setIsMaleAgent] = useState(true);
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
+
+  const playAgentSound = async (isMale: boolean) => {
+    try {
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        isMale 
+          ? require('../assets/audio/john.wav')
+          : require('../assets/audio/aliceIntro.wav')
+      );
+      setSound(newSound);
+      await newSound.playAsync();
+    } catch (error) {
+      console.error('Error playing sound:', error);
+    }
+  };
 
   const handleMicrophonePress = () => {
     setIsListening(!isListening);
@@ -33,16 +57,20 @@ export default function App() {
     setShowAgentSelection(true);
   };
 
-  const handleAgentSelect = (isMale: boolean) => {
+  const handleAgentSelect = async (isMale: boolean) => {
     setShowAgentSelection(false);
     setIsMaleAgent(isMale);
+    // Play the agent's sound
+    await playAgentSound(isMale);
     // Add initial message from the selected agent
     const initialMessage = "Good morning, John. Had a good night's sleep? Should we review your code today? Or would you like to continue pretending to be a girl online?";
     setMessages([{ text: initialMessage, isUser: false }]);
   };
 
-  const handleAgentToggle = () => {
+  const handleAgentToggle = async () => {
     setIsMaleAgent(!isMaleAgent);
+    // Play the agent's sound
+    await playAgentSound(!isMaleAgent);
     // Clear messages when switching agents
     setMessages([]);
     // Add initial message from the new agent
