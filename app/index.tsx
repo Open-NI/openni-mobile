@@ -46,11 +46,11 @@ export default function App() {
         const result = await response.json();
         if (result.status === "completed") {
           setLastId(null);
-          handleSendMessage(result.result, true);
+          handleSendMessage(result.result, false);
           playVoice(result.tts_audio_base64);
         } else if (result.status === "failed") {
           setLastId(null);
-          handleSendMessage("I'm sorry, I didn't understand that. Please try again.", true);
+          handleSendMessage("I'm sorry, I didn't understand that. Please try again.", false);
         }
       } catch (error) {
         console.error('Error checking action status:', error);
@@ -151,7 +151,7 @@ export default function App() {
 
       const result = await response.json();
       if (result.text) {
-        handleSendMessage(result.text, false);
+        handleSendMessage(result.text, true);
         const data = {
           user: 'Micka',
           request_message: result.text,
