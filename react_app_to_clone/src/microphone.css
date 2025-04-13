@@ -1,0 +1,23 @@
+.recording {
+    animation: record 1.2s linear infinite
+}
+
+@keyframes record {
+    0% {
+        border: #3a3a3a;
+        background-color: transparent;
+        transform: scale(1)
+    }
+
+    50% {
+        border: #ececec;
+        background-color: orange;
+        transform: scale(1.2)
+    }
+
+    100% {
+        border: #3a3a3a;
+        background-color: transparent;
+        transform: scale(1)
+    }
+}
