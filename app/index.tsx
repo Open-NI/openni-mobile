@@ -31,11 +31,13 @@ export default function App() {
 
   const playAgentSound = async (isMale: boolean) => {
     try {
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        isMale 
-          ? require('../assets/audio/john.wav')
-          : require('../assets/audio/aliceIntro.wav')
-      );
+      console.log('Playing sound for agent:', isMale ? 'John' : 'Alice');
+      const soundFile = isMale 
+        ? require('../assets/audio/michael.wav')
+        : require('../assets/audio/alice.wav');
+      console.log('Sound file path:', soundFile);
+      
+      const { sound: newSound } = await Audio.Sound.createAsync(soundFile);
       setSound(newSound);
       await newSound.playAsync();
     } catch (error) {
@@ -63,7 +65,9 @@ export default function App() {
     // Play the agent's sound
     await playAgentSound(isMale);
     // Add initial message from the selected agent
-    const initialMessage = "Good morning, John. Had a good night's sleep? Should we review your code today? Or would you like to continue pretending to be a girl online?";
+    const initialMessage = isMale 
+      ? "My name is Dylan. I collect rare anime figurines. Do not touch my Asuka Langley Soryu I will attack!\nWhy did the chicken cross the road?"
+      : "My name is Alice. I like nothing more than going home early on a Friday afternoon, logging into my 4Chan account and DDos-ing charity websites. I also like dogs and have a pet iguana.";
     setMessages([{ text: initialMessage, isUser: false }]);
   };
 
@@ -74,7 +78,9 @@ export default function App() {
     // Clear messages when switching agents
     setMessages([]);
     // Add initial message from the new agent
-    const initialMessage = "Good morning, John. Had a good night's sleep? Should we review your code today? Or would you like to continue pretending to be a girl online?";
+    const initialMessage = !isMaleAgent 
+      ? "My name is Dylan. I collect rare anime figurines. Do not touch my Asuka Langley Soryu I will attack!\nWhy did the chicken cross the road?"
+      : "My name is Alice. I like nothing more than going home early on a Friday afternoon, logging into my 4Chan account and DDos-ing charity websites. I also like dogs and have a pet iguana.";
     setMessages([{ text: initialMessage, isUser: false }]);
   };
 
