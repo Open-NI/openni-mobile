@@ -43,7 +43,7 @@ export default function App() {
   async function getActionStatus() {
     if (lastId) {
       try {
-        const response = await fetch(`http://192.168.0.100:8000/api/v1/action-runner/status/${lastId}`);
+        const response = await fetch(`http://192.168.93.149:8000/api/v1/action-runner/status/${lastId}`);
         const result = await response.json();
         console.log('Action status result:', result);
         if (result.status === "completed") {
@@ -82,7 +82,7 @@ export default function App() {
       });
 
       const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: `http://192.168.0.100:8000/api/v1/audio/${audioUrl}` },
+        { uri: `http://192.168.93.149:8000/api/v1/audio/${audioUrl}` },
         { shouldPlay: true }
       );
 
@@ -183,7 +183,7 @@ export default function App() {
       } as any);
 
       // First API call: Speech to Text
-      const response = await fetch('http://192.168.0.100:8000/api/v1/human/speech-to-text?language=en', {
+      const response = await fetch('http://192.168.93.149:8000/api/v1/human/speech-to-text?language=en', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -205,7 +205,7 @@ export default function App() {
         };
 
         // Second API call: Action Runner
-        const response2 = await fetch('http://192.168.0.100:8000/api/v1/action-runner/begin', {
+        const response2 = await fetch('http://192.168.93.149:8000/api/v1/action-runner/begin', {
           method: 'POST',
           headers: {
             Accept: 'application/json',
@@ -223,7 +223,7 @@ export default function App() {
       }
     } catch (error) {
       console.error('Error sending voice to API:', error);
-      handleSendMessage("Sorry, I couldn't process your request. Please try again.", true);
+      handleSendMessage("Sorry, I couldn't process your request. Please try again.", false);
       setIsLoading(false);
     }
   };

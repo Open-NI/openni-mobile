@@ -42,7 +42,7 @@ function App() {
     console.log('This runs every 200ms');
       // Your repeated logic here
       if(lastId) {
-        const response = await fetch(`http://192.168.0.100:8000/api/v1/action-runner/status/${lastId}`);
+        const response = await fetch(`http://192.168.93.149:8000/api/v1/action-runner/status/${lastId}`);
         const result = await response.json();
         console.log(result);
         if(result.status === "completed") {
@@ -52,7 +52,7 @@ function App() {
         }else if(result.status === "failed") {
           console.log("Action failed");
           setLastId(null);
-          handleSendMessage("I'm sorry, I didn't understand that. Please try again.", true);
+          handleSendMessage("I'm sorry, I didn't understand that. Please try again.", false);
         }
       }
   }
@@ -111,7 +111,7 @@ function App() {
     formData.append("file", audioBlob, "aliceIntro.wav"); // pomembno: ime polja je "file", kot v curl
   
     try {
-      const response = await fetch("http://192.168.0.100:8000/api/v1/human/speech-to-text?language=en", {
+      const response = await fetch("http://192.168.93.149:8000/api/v1/human/speech-to-text?language=en", {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -136,7 +136,7 @@ function App() {
           voice: toggledRef.current ? "af_heart" : "am_michael",
         };
         
-        const response2 = await fetch("http://192.168.0.100:8000/api/v1/action-runner/begin", {
+        const response2 = await fetch("http://192.168.93.149:8000/api/v1/action-runner/begin", {
           method: "POST",
           headers: {
             "Accept": "application/json",
@@ -147,7 +147,7 @@ function App() {
         
         const result2 = await response2.json();
         console.log(result2);
-        playVoice(`http://192.168.0.100:8000/api/v1/audio/${result2.tts_audio_base64}`)
+        playVoice(`http://192.168.93.149:8000/api/v1/audio/${result2.tts_audio_base64}`)
         setLastId(result2.action_id)
       }
 
