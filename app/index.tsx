@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { Audio } from 'expo-av';
+import * as FileSystem from 'expo-file-system';
 import Chat from '../components/Chat';
 import Microphone from '../components/Microphone';
 import Agent from '../components/Agent';
@@ -20,6 +21,8 @@ export default function App() {
   const [showAgentSelection, setShowAgentSelection] = useState(false);
   const [isMaleAgent, setIsMaleAgent] = useState(true);
   const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [lastId, setLastId] = useState<string | null>(null);
 
   useEffect(() => {
     return sound
@@ -28,6 +31,50 @@ export default function App() {
         }
       : undefined;
   }, [sound]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      getActionStatus();
+    }, 350);
+    return () => clearInterval(interval);
+  }, [lastId]);
+
+  async function getActionStatus() {
+    if (lastId) {
+      try {
+        const response = await fetch(`http://192.168.0.100:8000/api/v1/action-runner/status/${lastId}`);
+        const result = await response.json();
+        if (result.status === "completed") {
+          setLastId(null);
+          handleSendMessage(result.result, true);
+          playVoice(result.tts_audio_base64);
+        } else if (result.status === "failed") {
+          setLastId(null);
+          handleSendMessage("I'm sorry, I didn't understand that. Please try again.", true);
+        }
+      } catch (error) {
+        console.error('Error checking action status:', error);
+      }
+    }
+  }
+
+  const playVoice = async (base64Audio: string) => {
+    try {
+      const audioUri = `${FileSystem.cacheDirectory}temp_audio.wav`;
+      await FileSystem.writeAsStringAsync(audioUri, base64Audio, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        { uri: audioUri },
+        { shouldPlay: true }
+      );
+      setSound(newSound);
+      await newSound.playAsync();
+    } catch (error) {
+      console.error('Error playing voice:', error);
+    }
+  };
 
   const playAgentSound = async (isMale: boolean) => {
     try {
@@ -45,9 +92,105 @@ export default function App() {
     }
   };
 
+  const startRecording = async () => {
+    try {
+      await Audio.requestPermissionsAsync();
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      setRecording(recording);
+      setIsListening(true);
+    } catch (error) {
+      console.error('Error starting recording:', error);
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!recording) return;
+
+    try {
+      await recording.stopAndUnloadAsync();
+      const uri = recording.getURI();
+      setRecording(null);
+      setIsListening(false);
+
+      if (uri) {
+        await sendToAPI(uri);
+      }
+    } catch (error) {
+      console.error('Error stopping recording:', error);
+    }
+  };
+
+  const sendToAPI = async (audioUri: string) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', {
+        uri: audioUri,
+        type: 'audio/wav',
+        name: 'recording.wav',
+      } as any);
+
+      // First API call: Speech to Text
+      const response = await fetch('http://192.168.0.100:8000/api/v1/human/speech-to-text?language=en', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Speech to Text API failed with status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      if (result.text) {
+        handleSendMessage(result.text, false);
+        const data = {
+          user: 'Micka',
+          request_message: result.text,
+          voice: isMaleAgent ? 'am_michael' : 'af_heart',
+        };
+
+        // Second API call: Action Runner
+        const response2 = await fetch('http://192.168.0.100:8000/api/v1/action-runner/begin', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        });
+
+        if (!response2.ok) {
+          throw new Error(`Action Runner API failed with status: ${response2.status}`);
+        }
+
+        const result2 = await response2.json();
+        setLastId(result2.action_id);
+      }
+    } catch (error) {
+      console.error('Error sending voice to API:', error);
+      handleSendMessage("Sorry, I couldn't process your request. Please try again.", true);
+    }
+  };
+
+  const handleSendMessage = (message: string, isUser: boolean) => {
+    setMessages(prevMessages => [...prevMessages, { text: message, isUser }]);
+  };
+
   const handleMicrophonePress = () => {
-    setIsListening(!isListening);
-    // TODO: Implement voice recording and processing
+    if (isListening) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
   };
 
   const handleAgentPress = () => {
