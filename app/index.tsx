@@ -44,10 +44,14 @@ export default function App() {
       try {
         const response = await fetch(`http://192.168.0.100:8000/api/v1/action-runner/status/${lastId}`);
         const result = await response.json();
+        console.log('Action status result:', result);
         if (result.status === "completed") {
           setLastId(null);
           handleSendMessage(result.result, false);
-          playVoice(result.tts_audio_base64);
+          if (result.tts_audio_base64) {
+            console.log('Playing audio from URL:', result.tts_audio_base64);
+            await playVoice(result.tts_audio_base64);
+          }
         } else if (result.status === "failed") {
           setLastId(null);
           handleSendMessage("I'm sorry, I didn't understand that. Please try again.", false);
@@ -58,19 +62,34 @@ export default function App() {
     }
   }
 
-  const playVoice = async (base64Audio: string) => {
+  const playVoice = async (audioUrl: string) => {
     try {
-      const audioUri = `${FileSystem.cacheDirectory}temp_audio.wav`;
-      await FileSystem.writeAsStringAsync(audioUri, base64Audio, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-
+      console.log('Attempting to play audio from URL:', audioUrl);
+      
+      // Create a new sound object from the URL
       const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: audioUri },
+        { uri: `http://192.168.0.100:8000/api/v1/audio/${audioUrl}` },
         { shouldPlay: true }
       );
+
+      // Clean up previous sound if it exists
+      if (sound) {
+        await sound.unloadAsync();
+      }
+
       setSound(newSound);
+      console.log('Starting audio playback');
       await newSound.playAsync();
+      console.log('Audio playback started');
+
+      // Clean up after playing
+      newSound.setOnPlaybackStatusUpdate(async (status) => {
+        console.log('Playback status:', status);
+        if (status.isLoaded && !status.isPlaying && !status.isBuffering) {
+          console.log('Playback finished, unloading sound');
+          await newSound.unloadAsync();
+        }
+      });
     } catch (error) {
       console.error('Error playing voice:', error);
     }
