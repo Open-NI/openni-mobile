@@ -25,14 +25,14 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     top: 10,
-    left: 10,
+    right: 10,
     zIndex: 1,
   },
   toggleButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#333333',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',

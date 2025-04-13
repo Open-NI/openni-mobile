@@ -41,13 +41,14 @@ export default function App() {
       ) : (
         <View style={styles.content}>
           <AgentToggle isMale={isMaleAgent} onToggle={handleAgentToggle} />
+          <Agent
+            name={isMaleAgent ? "Dylan" : "Alice"}
+            status="Available"
+            onPress={handleAgentPress}
+            isMale={isMaleAgent}
+          />
           <Chat messages={messages} />
           <View style={styles.controls}>
-            <Agent
-              name={isMaleAgent ? "Michael" : "Alice"}
-              status="Available"
-              onPress={handleAgentPress}
-            />
             <Microphone
               isListening={isListening}
               onPress={handleMicrophonePress}
