@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, ScrollView, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, ScrollView, StyleSheet, Animated } from 'react-native';
 import { Text } from '@react-native-material/core';
 
 interface Message {
@@ -9,9 +9,26 @@ interface Message {
 
 interface ChatProps {
   messages: Message[];
+  isLoading?: boolean;
 }
 
-const Chat: React.FC<ChatProps> = ({ messages }) => {
+const Chat: React.FC<ChatProps> = ({ messages, isLoading = false }) => {
+  const [dots, setDots] = useState('');
+
+  useEffect(() => {
+    if (isLoading) {
+      const interval = setInterval(() => {
+        setDots(prev => {
+          if (prev.length >= 3) return '';
+          return prev + '.';
+        });
+      }, 500);
+      return () => clearInterval(interval);
+    } else {
+      setDots('');
+    }
+  }, [isLoading]);
+
   return (
     <ScrollView 
       style={styles.container}
@@ -33,6 +50,13 @@ const Chat: React.FC<ChatProps> = ({ messages }) => {
           </Text>
         </View>
       ))}
+      {isLoading && (
+        <View style={[styles.messageContainer, styles.agentMessage]}>
+          <Text style={[styles.messageText, styles.agentMessageText]}>
+            {dots}
+          </Text>
+        </View>
+      )}
     </ScrollView>
   );
 };

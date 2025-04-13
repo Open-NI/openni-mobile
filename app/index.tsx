@@ -23,6 +23,7 @@ export default function App() {
   const [sound, setSound] = useState<Audio.Sound | null>(null);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [lastId, setLastId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     return sound
@@ -52,12 +53,15 @@ export default function App() {
             console.log('Playing audio from URL:', result.tts_audio_base64);
             await playVoice(result.tts_audio_base64);
           }
+          setIsLoading(false);
         } else if (result.status === "failed") {
           setLastId(null);
           handleSendMessage("I'm sorry, I didn't understand that. Please try again.", false);
+          setIsLoading(false);
         }
       } catch (error) {
         console.error('Error checking action status:', error);
+        setIsLoading(false);
       }
     }
   }
@@ -158,6 +162,7 @@ export default function App() {
 
   const sendToAPI = async (audioUri: string) => {
     try {
+      setIsLoading(true);
       const formData = new FormData();
       formData.append('file', {
         uri: audioUri,
@@ -207,6 +212,7 @@ export default function App() {
     } catch (error) {
       console.error('Error sending voice to API:', error);
       handleSendMessage("Sorry, I couldn't process your request. Please try again.", true);
+      setIsLoading(false);
     }
   };
 
@@ -271,11 +277,12 @@ export default function App() {
             onPress={handleAgentPress}
             isMale={isMaleAgent}
           />
-          <Chat messages={messages} />
+          <Chat messages={messages} isLoading={isLoading} />
           <View style={styles.controls}>
             <Microphone
               isListening={isListening}
               onPress={handleMicrophonePress}
+              disabled={isLoading}
             />
           </View>
         </View>

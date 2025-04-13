@@ -1,42 +1,46 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { IconButton } from '@react-native-material/core';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 interface MicrophoneProps {
   isListening: boolean;
   onPress: () => void;
+  disabled?: boolean;
 }
 
-const Microphone: React.FC<MicrophoneProps> = ({ isListening, onPress }) => {
+export default function Microphone({ isListening, onPress, disabled = false }: MicrophoneProps) {
   return (
-    <View style={styles.container}>
-      <IconButton
-        icon={props => (
-          <MaterialCommunityIcons
-            name={isListening ? 'microphone' : 'microphone-off'}
-            size={24}
-            color={isListening ? '#2196F3' : '#757575'}
-          />
-        )}
-        onPress={onPress}
-        style={styles.button}
+    <TouchableOpacity
+      style={[
+        styles.microphoneButton,
+        isListening && styles.listening,
+        disabled && styles.disabled,
+      ]}
+      onPress={onPress}
+      disabled={disabled}
+    >
+      <Ionicons
+        name={isListening ? 'mic' : 'mic-outline'}
+        size={32}
+        color={disabled ? '#666' : '#fff'}
       />
-    </View>
+    </TouchableOpacity>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  container: {
-    alignItems: 'center',
+  microphoneButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#007AFF',
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  button: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#f5f5f5',
+  listening: {
+    backgroundColor: '#FF3B30',
   },
-});
-
-export default Microphone; 
+  disabled: {
+    backgroundColor: '#999',
+  },
+}); 
