@@ -24,7 +24,7 @@ const AgentToggle: React.FC<AgentToggleProps> = ({ isMale, onToggle }) => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 10,
+    top: 26,
     right: 10,
     zIndex: 1,
   },
