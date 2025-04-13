@@ -5,6 +5,7 @@ import Microphone from '../components/Microphone';
 import Agent from '../components/Agent';
 import IntroScreen from '../components/IntroScreen';
 import AgentToggle from '../components/AgentToggle';
+import AgentSelection from '../components/AgentSelection';
 
 interface Message {
   text: string;
@@ -15,6 +16,7 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isListening, setIsListening] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+  const [showAgentSelection, setShowAgentSelection] = useState(false);
   const [isMaleAgent, setIsMaleAgent] = useState(true);
 
   const handleMicrophonePress = () => {
@@ -28,6 +30,12 @@ export default function App() {
 
   const handleIntroComplete = () => {
     setShowIntro(false);
+    setShowAgentSelection(true);
+  };
+
+  const handleAgentSelect = (isMale: boolean) => {
+    setShowAgentSelection(false);
+    setIsMaleAgent(isMale);
     // Add initial message from the selected agent
     const initialMessage = "Good morning, John. Had a good night's sleep? Should we review your code today? Or would you like to continue pretending to be a girl online?";
     setMessages([{ text: initialMessage, isUser: false }]);
@@ -46,6 +54,8 @@ export default function App() {
     <SafeAreaView style={styles.container}>
       {showIntro ? (
         <IntroScreen onAnimationComplete={handleIntroComplete} />
+      ) : showAgentSelection ? (
+        <AgentSelection onSelect={handleAgentSelect} />
       ) : (
         <View style={styles.content}>
           <AgentToggle isMale={isMaleAgent} onToggle={handleAgentToggle} />
