@@ -4,6 +4,7 @@ import Chat from '../components/Chat';
 import Microphone from '../components/Microphone';
 import Agent from '../components/Agent';
 import IntroScreen from '../components/IntroScreen';
+import AgentToggle from '../components/AgentToggle';
 
 interface Message {
   text: string;
@@ -14,6 +15,7 @@ export default function App() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isListening, setIsListening] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+  const [isMaleAgent, setIsMaleAgent] = useState(true);
 
   const handleMicrophonePress = () => {
     setIsListening(!isListening);
@@ -28,16 +30,21 @@ export default function App() {
     setShowIntro(false);
   };
 
+  const handleAgentToggle = () => {
+    setIsMaleAgent(!isMaleAgent);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       {showIntro ? (
         <IntroScreen onAnimationComplete={handleIntroComplete} />
       ) : (
         <View style={styles.content}>
+          <AgentToggle isMale={isMaleAgent} onToggle={handleAgentToggle} />
           <Chat messages={messages} />
           <View style={styles.controls}>
             <Agent
-              name="Assistant"
+              name={isMaleAgent ? "Michael" : "Alice"}
               status="Available"
               onPress={handleAgentPress}
             />
