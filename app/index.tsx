@@ -66,7 +66,17 @@ export default function App() {
     try {
       console.log('Attempting to play audio from URL:', audioUrl);
       
-      // Create a new sound object from the URL
+      // Configure audio to use main speaker
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: true,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
+        allowsRecordingIOS: false,
+        interruptionModeIOS: 1, // Audio.INTERRUPTION_MODE_IOS_DUCK_OTHERS
+        interruptionModeAndroid: 1, // Audio.INTERRUPTION_MODE_ANDROID_DUCK_OTHERS
+      });
+
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: `http://192.168.0.100:8000/api/v1/audio/${audioUrl}` },
         { shouldPlay: true }
