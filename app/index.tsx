@@ -28,10 +28,18 @@ export default function App() {
 
   const handleIntroComplete = () => {
     setShowIntro(false);
+    // Add initial message from the selected agent
+    const initialMessage = "Good morning, John. Had a good night's sleep? Should we review your code today? Or would you like to continue pretending to be a girl online?";
+    setMessages([{ text: initialMessage, isUser: false }]);
   };
 
   const handleAgentToggle = () => {
     setIsMaleAgent(!isMaleAgent);
+    // Clear messages when switching agents
+    setMessages([]);
+    // Add initial message from the new agent
+    const initialMessage = "Good morning, John. Had a good night's sleep? Should we review your code today? Or would you like to continue pretending to be a girl online?";
+    setMessages([{ text: initialMessage, isUser: false }]);
   };
 
   return (
@@ -71,7 +79,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
   },
   controls: {
-    marginTop: 16,
+    position: 'absolute',
+    bottom: 20,
+    left: 0,
+    right: 0,
     alignItems: 'center',
   },
 }); 

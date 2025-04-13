@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet } from 'react-native';
-import { Text, Surface } from '@react-native-material/core';
+import { Text } from '@react-native-material/core';
 
 interface Message {
   text: string;
@@ -13,18 +13,25 @@ interface ChatProps {
 
 const Chat: React.FC<ChatProps> = ({ messages }) => {
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView 
+      style={styles.container}
+      contentContainerStyle={styles.contentContainer}
+    >
       {messages.map((message, index) => (
-        <Surface
+        <View
           key={index}
-          elevation={2}
           style={[
             styles.messageContainer,
             message.isUser ? styles.userMessage : styles.agentMessage,
           ]}
         >
-          <Text style={styles.messageText}>{message.text}</Text>
-        </Surface>
+          <Text style={[
+            styles.messageText,
+            message.isUser ? styles.userMessageText : styles.agentMessageText
+          ]}>
+            {message.text}
+          </Text>
+        </View>
       ))}
     </ScrollView>
   );
@@ -33,24 +40,36 @@ const Chat: React.FC<ChatProps> = ({ messages }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 60, // Space for the agent header
+  },
+  contentContainer: {
     padding: 16,
   },
   messageContainer: {
-    padding: 12,
-    marginVertical: 4,
-    borderRadius: 8,
     maxWidth: '80%',
+    padding: 12,
+    borderRadius: 20,
+    marginVertical: 4,
   },
   userMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: '#2196F3',
+    backgroundColor: '#0084FF',
+    borderTopRightRadius: 4,
   },
   agentMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderTopLeftRadius: 4,
   },
   messageText: {
-    color: '#000',
+    fontSize: 16,
+    lineHeight: 20,
+  },
+  userMessageText: {
+    color: '#FFFFFF',
+  },
+  agentMessageText: {
+    color: '#FFFFFF',
   },
 });
 
